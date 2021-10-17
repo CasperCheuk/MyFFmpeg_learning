@@ -61,8 +61,8 @@ int sfp_refresh_thread(void* opaque) {
 int main(int argc, char* argv[])
 {
     FILE* pFile;
-    char url[] = "sintel.h264";
-    //char url[] = "bigbuckbunny_480x272.h265";
+    //char url[] = "sintel.h264";
+    char url[] = "bigbuckbunny_480x272.h265";
 
     AVFormatContext* pFormatCtx;
     int audioStream;
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
     screen_w = pCodecCtx->width;
     screen_h = pCodecCtx->height;
     screen = SDL_CreateWindow("Simplest ffmpeg player's Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        screen_w, screen_h, SDL_WINDOW_OPENGL);
+        screen_w, screen_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
 
 
@@ -243,12 +243,18 @@ int main(int argc, char* argv[])
                         //cout << "*" << pack.size << flush;
                     }
                     if (got_picture == 0) {
+
+                        /*sdlRect.x = 0;
+                        sdlRect.y = 0;
+                        sdlRect.w = screen_w;
+                        sdlRect.h = screen_h;*/
+
                         sws_scale(img_convert_ctx, (const uint8_t* const*)pFrame->data, pFrame->linesize, 0, pCodecCtx->height, pFrameYUV->data, pFrameYUV->linesize);
                         //SDL---------------------------
                         SDL_UpdateTexture(sdlTexture, NULL, pFrameYUV->data[0], pFrameYUV->linesize[0]);
                         SDL_RenderClear(sdlRenderer);
-                        //SDL_RenderCopy( sdlRenderer, sdlTexture, &sdlRect, &sdlRect );  
-                        SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+                        SDL_RenderCopy( sdlRenderer, sdlTexture, &sdlRect, &sdlRect );  
+                        //SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
                         SDL_RenderPresent(sdlRenderer);
                         //SDL End-----------------------
                     }
@@ -259,6 +265,10 @@ int main(int argc, char* argv[])
                 //Exit Thread
                 thread_exit = 1;
             }
+        }
+        else if (event.type == SDL_WINDOWEVENT) {
+            //If Resize
+            //SDL_GetWindowSize(screen, &screen_w, &screen_h);
         }
         else if (event.type == SDL_KEYDOWN) {
             //Pause
